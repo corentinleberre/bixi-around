@@ -2,7 +2,9 @@
   "name": "bixi-around",
   "version": "0.0.1",
   "scripts": {
-    "serve": "nodemon src/app.ts"
+    "dev": "nodemon src/main.ts",
+    "build": "rm -rf dist && tsc",
+    "start": "node dist/src/main.js"
   },
   "author": "Corentin Le Berre",
   "license": "MIT",

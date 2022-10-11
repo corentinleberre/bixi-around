@@ -1,9 +1,25 @@
-interface BikeAroundRequest {
+interface BixiAroundRequest {
   city: string;
   lat: string;
-  long: string;
+  lon: string;
 }
 
-interface BikeAroundResponse {}
+interface BixiAroundResponse {
+  userParams: BixiAroundRequest;
+  stations: BixiStation[];
+}
 
-export { BikeAroundRequest, BikeAroundResponse };
+interface BixiStation {
+  id: string;
+  name: string;
+  coordinates: {
+    lat: string;
+    lon: string;
+  };
+  distanceFromUser: string;
+  bikes: number;
+  ebikes: number;
+  docks: number;
+}
+
+export { BixiAroundRequest, BixiAroundResponse, BixiStation };

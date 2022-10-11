@@ -9,7 +9,7 @@ export interface EightdStationService {
   link_for_more_info: string;
 }
 
-export interface Station {
+export interface StationInformation {
   station_id: string;
   external_id: string;
   name: string;
@@ -25,12 +25,12 @@ export interface Station {
   has_kiosk: boolean;
 }
 
-export interface Data {
-  stations: Station[];
+export interface StationInformationData {
+  stations: StationInformation[];
 }
 
 export interface StationsInformation {
   last_updated: number;
   ttl: number;
-  data: Data;
+  data: StationInformationData;
 }
