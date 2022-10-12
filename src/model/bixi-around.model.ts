@@ -22,4 +22,8 @@ interface BixiStation {
   docks: number;
 }
 
-export { BixiAroundRequest, BixiAroundResponse, BixiStation };
+interface ErrorResponse {
+  info: string;
+}
+
+export { BixiAroundRequest, BixiAroundResponse, BixiStation, ErrorResponse };
