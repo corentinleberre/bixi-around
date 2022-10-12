@@ -1,6 +1,6 @@
 {
   "name": "bixi-around",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/main.ts",
     "build": "rm -rf dist && tsc",
