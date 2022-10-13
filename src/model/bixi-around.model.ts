@@ -6,7 +6,7 @@ interface BixiAroundRequest {
 
 interface BixiAroundResponse {
   userParams: BixiAroundRequest;
-  stations: BixiStation[];
+  stations: Array<BixiStation>;
 }
 
 interface BixiStation {

@@ -15,11 +15,11 @@ export interface StationStatus {
   last_reported: number;
   eightd_has_available_keys: boolean;
   is_charging: boolean;
-  eightd_active_station_services: EightdActiveStationService[];
+  eightd_active_station_services: Array<EightdActiveStationService>;
 }
 
 export interface StationStatusData {
-  stations: StationStatus[];
+  stations: Array<StationStatus>;
 }
 
 export interface StationsStatus {

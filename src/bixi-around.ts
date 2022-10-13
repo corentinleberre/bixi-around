@@ -7,7 +7,10 @@ import {
   ErrorResponse,
 } from "./model/bixi-around.model";
 import getDistance from "geolib/es/getDistance";
-import { StationsInformation } from "./model/station-api.model";
+import {
+  StationInformation,
+  StationsInformation,
+} from "./model/station-api.model";
 import { StationsStatus } from "./model/status-api.model";
 
 const nearestBixiStationsAroundApi = (
@@ -16,12 +19,13 @@ const nearestBixiStationsAroundApi = (
 ) => {
   const queryParams = req.query as unknown as BixiAroundRequest;
   if (queryParams.city && queryParams.lat && queryParams.lon) {
+    const bixiApiUrl = "https://gbfs.velobixi.com/gbfs/fr";
     const neareastStationsRequest: Promise<StationsInformation> = fetch(
-      "https://gbfs.velobixi.com/gbfs/fr/station_information.json"
-    ).then((response) => response.json());
+      `${bixiApiUrl}/station_information.json`
+    ).then((res) => res.json());
     const stationsStatusRequest: Promise<StationsStatus> = fetch(
-      "https://gbfs.velobixi.com/gbfs/fr/station_status.json"
-    ).then((response) => response.json());
+      `${bixiApiUrl}/station_status.json`
+    ).then((res) => res.json());
 
     return Promise.all([neareastStationsRequest, stationsStatusRequest]).then(
       (tuple) => {
@@ -35,11 +39,10 @@ const nearestBixiStationsAroundApi = (
             nearestStations,
             stationsStatus
           );
-        const response: BixiAroundResponse = {
+        return res.status(200).json({
           userParams: queryParams,
           stations: completeNearestBixiStations,
-        };
-        return res.status(200).json(response);
+        } as BixiAroundResponse);
       }
     );
   }
@@ -49,10 +52,10 @@ const nearestBixiStationsAroundApi = (
 };
 
 const findNeareastStationsAroundUser = (
-  stationsInformation: any,
+  stationsInformation: StationsInformation,
   queryParams: BixiAroundRequest
-) => {
-  const nearestStations = stationsInformation.data.stations
+): Array<StationInformation> => {
+  return stationsInformation.data.stations
     .map((station) => {
       return {
         ...station,
@@ -64,22 +67,21 @@ const findNeareastStationsAroundUser = (
     })
     .sort((a, b) => a.distanceFromUser - b.distanceFromUser)
     .slice(0, 5);
-  return nearestStations;
 };
 
-function completeNearestStationsWithStatusInformations(
+const completeNearestStationsWithStatusInformations = (
   neareastStations: any,
   stationsStatus: StationsStatus
-): BixiStation[] {
-  return neareastStations.map((station) => {
-    return mapToBixiAroundResponse({
+): Array<BixiStation> => {
+  return neareastStations.map((station) =>
+    mapToBixiAroundResponse({
       ...station,
       ...stationsStatus.data.stations.find(
         (s) => s.station_id === station.station_id
       ),
-    });
-  });
-}
+    })
+  );
+};
 
 const mapToBixiAroundResponse = (station: any): BixiStation => {
   return {

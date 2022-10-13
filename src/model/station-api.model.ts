@@ -16,17 +16,18 @@ export interface StationInformation {
   short_name: string;
   lat: number;
   lon: number;
-  rental_methods: string[];
+  rental_methods: Array<string>;
   capacity: number;
   electric_bike_surcharge_waiver: boolean;
   is_charging: boolean;
   eightd_has_key_dispenser: boolean;
-  eightd_station_services: EightdStationService[];
+  eightd_station_services: Array<EightdStationService>;
   has_kiosk: boolean;
+  distanceFromUser?: number;
 }
 
 export interface StationInformationData {
-  stations: StationInformation[];
+  stations: Array<StationInformation>;
 }
 
 export interface StationsInformation {
