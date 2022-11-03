@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import fetch from "node-fetch";
 import {
-  BixiAroundRequest,
-  BixiAroundResponse,
+  ClientRequest,
+  ClientResponse,
   BixiStation,
   ErrorResponse,
 } from "./model/bixi-around.model";
@@ -12,19 +12,26 @@ import {
   StationsInformation,
 } from "./model/station-api.model";
 import { StationsStatus } from "./model/status-api.model";
+import { citiesGbfsUrl } from "./utils/cities";
+import { mapToBixiStation } from "./utils/mapper";
 
 const nearestBixiStationsAroundApi = (
-  req: Request,
-  res: Response<BixiAroundResponse | ErrorResponse>
+  req: Request<{}, {}, {}, ClientRequest>,
+  res: Response<ClientResponse | ErrorResponse>
 ) => {
-  const queryParams = req.query as unknown as BixiAroundRequest;
-  if (queryParams.city && queryParams.lat && queryParams.lon) {
-    const bixiApiUrl = "https://gbfs.velobixi.com/gbfs/fr";
+  const queryParams = req.query as unknown as ClientRequest;
+  if (
+    queryParams.city &&
+    queryParams.lat &&
+    queryParams.lon &&
+    queryParams.nbResult
+  ) {
+    const apiUrl = citiesGbfsUrl[queryParams.city];
     const neareastStationsRequest: Promise<StationsInformation> = fetch(
-      `${bixiApiUrl}/station_information.json`
+      `${apiUrl}/station_information.json`
     ).then((res) => res.json());
     const stationsStatusRequest: Promise<StationsStatus> = fetch(
-      `${bixiApiUrl}/station_status.json`
+      `${apiUrl}/station_status.json`
     ).then((res) => res.json());
 
     return Promise.all([neareastStationsRequest, stationsStatusRequest]).then(
@@ -42,18 +49,18 @@ const nearestBixiStationsAroundApi = (
         return res.status(200).json({
           userParams: queryParams,
           stations: completeNearestBixiStations,
-        } as BixiAroundResponse);
+        } as ClientResponse);
       }
     );
   }
   return res.status(400).json({
-    info: "You must provide city, latitude and logitude.",
+    info: "You must provide city, latitude, logitude and number of results expected.",
   } as ErrorResponse);
 };
 
 const findNeareastStationsAroundUser = (
   stationsInformation: StationsInformation,
-  queryParams: BixiAroundRequest
+  queryParams: ClientRequest
 ): Array<StationInformation> => {
   return stationsInformation.data.stations
     .map((station) => {
@@ -66,7 +73,7 @@ const findNeareastStationsAroundUser = (
       };
     })
     .sort((a, b) => a.distanceFromUser - b.distanceFromUser)
-    .slice(0, 5);
+    .slice(0, queryParams.nbResult);
 };
 
 const completeNearestStationsWithStatusInformations = (
@@ -74,28 +81,13 @@ const completeNearestStationsWithStatusInformations = (
   stationsStatus: StationsStatus
 ): Array<BixiStation> => {
   return neareastStations.map((station) =>
-    mapToBixiAroundResponse({
+    mapToBixiStation({
       ...station,
       ...stationsStatus.data.stations.find(
         (s) => s.station_id === station.station_id
       ),
     })
   );
-};
-
-const mapToBixiAroundResponse = (station: any): BixiStation => {
-  return {
-    id: station.station_id,
-    name: station.name,
-    coordinates: {
-      lat: station.lat,
-      lon: station.lon,
-    },
-    distanceFromUser: station.distanceFromUser,
-    bikes: station.num_bikes_available,
-    ebikes: station.num_ebikes_available,
-    docks: station.num_docks_available,
-  };
 };
 
 export default nearestBixiStationsAroundApi;

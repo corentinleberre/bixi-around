@@ -1,11 +1,14 @@
-interface BixiAroundRequest {
-  city: string;
+import { Cities } from "./cities.model";
+
+interface ClientRequest {
+  city: Cities;
   lat: string;
   lon: string;
+  nbResult: number;
 }
 
-interface BixiAroundResponse {
-  userParams: BixiAroundRequest;
+interface ClientResponse {
+  userParams: ClientRequest;
   stations: Array<BixiStation>;
 }
 
@@ -26,4 +29,4 @@ interface ErrorResponse {
   info: string;
 }
 
-export { BixiAroundRequest, BixiAroundResponse, BixiStation, ErrorResponse };
+export { ClientRequest, ClientResponse, BixiStation, ErrorResponse };
